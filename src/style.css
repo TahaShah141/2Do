@@ -1,0 +1,255 @@
+:root {
+    --black: #202020;
+    --green: #34eb34;
+    --red: #f82d2d;
+    --white: #f5f5f5;
+
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    overflow-x: hidden;
+    display: grid;
+    grid-template-rows: 100px 1fr 50px;
+    height: 100vh
+}
+
+.header, .footer {
+    background-color: var(--black);
+    border: 1px solid #1a1a1a;
+}
+
+.header {
+    display: grid;
+    align-items: center;
+    /* justify-content: center; */
+}
+
+.branding {
+    display: flex;
+    align-items: center;
+    margin: 20px;
+}
+
+.branding h1 {
+    color: var(--white);
+    font-size: 3rem;
+}
+
+.branding > h1::first-letter {
+    color: var(--red);
+}
+
+.branding svg {
+    color: var(--green);
+    height: 40px;
+    margin: 10px;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.footer-text {
+    color: var(--white);
+    letter-spacing: 1px;
+    font-size: 1.2rem;
+}
+
+
+.main {
+    --button-padding: 5px;
+    --button-radius: 60px;
+    position: relative;
+    background-color: black;
+    /* background: linear-gradient(45deg, #f8e356, #ff4f8b, #e3b1f6); */
+    /* background: linear-gradient(45deg, #ffcc70, #c850c0, #4158d0); */
+    background: linear-gradient(45deg, #1fa0ff, #12dafb, #a7fdcc);
+
+}
+
+.projects {
+    height: 100%;
+    padding: 30px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-auto-rows: 75px;
+    gap: 20px;
+}
+
+.project {
+    width: 100%;
+    height: 75px;
+    background-color: white;
+    border-radius: 5px;
+    display: grid;
+    align-items: center;
+    box-shadow: 3px 3px 0px var(--black);
+    transition: transform 0.5s cubic-bezier(0.455, 0.03, 0.515, 0.955), opacity 1.5s ease-out;
+}
+
+
+.project-name {
+    flex: 1;
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+.project-content {
+    padding: 0 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.project-buttons {
+    width: 30px;
+    height: 30px;
+}
+
+.project-buttons svg:hover {
+    transition: transform 0.1s linear;
+    color: maroon;
+    transform: scale(1.2);
+}
+
+.invisible {
+    transform: translateX(50px);
+    opacity: 0;
+}
+
+.add-button {
+    position: fixed;
+    background-color: var(--black);
+    bottom: calc(var(--button-padding) + 50px);
+    right: var(--button-padding);
+    width: var(--button-radius);
+    height: var(--button-radius);
+    border-radius: calc(var(--button-radius)/2);
+    border: 2px solid #1a1a1a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: width 0.3s ease-in-out 0.3s;
+}
+
+.project-form.closed {
+    width: var(--button-radius);
+    height: var(--button-radius);
+}
+
+.project-form {
+    background-color: white;
+    width: 400px;
+    height: 100px;
+    position: fixed;
+    bottom: calc(var(--button-padding) + 50px);
+    right: var(--button-padding);
+    border-radius: 10px;
+    border: 2px solid black;
+    transition: width 0.5s, height 0.5s;
+    transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    padding: 10px;
+    gap: 5px;
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    grid-template-rows: 30px 1fr;
+    justify-content: center;
+    align-items: center;
+}
+
+.form-buttons {
+    position: absolute;
+    height: 100px;
+    width: 50px;
+    left: -55px;
+    display: grid;
+    grid-template-rows: repeat(2, 1fr);
+    justify-content: center;
+    align-items: center;
+}
+
+.form-buttons > div {
+    height: 40px;
+    width: 40px;
+    border-radius: 5px;
+    display: grid;
+    place-items: center;
+    border: 2px solid black;
+}
+
+.form-buttons > div:hover {
+    transform: scale(1.1);
+}
+
+.form-buttons svg {
+    height: 30px;
+    color: black;
+}
+
+.cancel {
+    background: linear-gradient(45deg, #fee140, #fa709a);
+}
+
+.confirm {
+    background: linear-gradient(45deg, #d4fc79, #96e6a1);
+}
+
+.name-input {
+    height: 25px;
+}
+
+.due-date {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr 25px;
+}
+
+.date-label {
+    text-align: right;
+}
+
+.date {
+    width: 20px;
+}
+
+.description {
+    grid-column: 1/-1;
+    height: 100%;
+}
+
+
+.add-button > p {
+    width: 0;
+    opacity: 0;
+    transition: opacity 0.1s ease 0.3s;
+    color: white;
+    text-align: center;
+    flex: 1;
+    font-size: 1.25rem;
+}
+
+.add-button:hover {
+    width: 200px;
+}
+
+.add-button:hover > p {
+    opacity: 100;
+    transition: opacity 0.2s ease 0.5s;
+}
+
+.add-button > svg {
+    color: white;
+    transition: transform 0.75s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.add-button:hover > svg {
+    transform: rotate(270deg);
+}

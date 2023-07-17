@@ -143,6 +143,14 @@ body {
 .project-form.closed {
     width: var(--button-radius);
     height: var(--button-radius);
+    border-radius: calc(var(--button-radius)/2);
+    background-color: var(--black);
+    transition: width 0.5s, height 0.5s, background-color 0.5s;
+    transition-timing-function: cubic-bezier(0.6, -0.28, 0.735, 0.045);
+}
+
+.project-form.closed * {
+    opacity: 0;
 }
 
 .project-form {
@@ -204,6 +212,7 @@ body {
 
 .name-input {
     height: 25px;
+    padding: 0 5px;
 }
 
 .due-date {
@@ -223,6 +232,7 @@ body {
 .description {
     grid-column: 1/-1;
     height: 100%;
+    padding: 0 5px;
 }
 
 

@@ -1,6 +1,5 @@
 import Dom from "./domManipulate.js";
-import backend from "./backend.js";
-import projects from "./projects.js";
+import prj from "./projects.js";
 
 
 function initializeBody() {
@@ -34,14 +33,19 @@ function getHeader() {
     return header;
 }
 
-function getMain() {
-    let main = Dom.newElement("div", "main");
+function loadProjects(main) {
+    if (!main) main = document.querySelector(".main");
 
     let projects = Dom.newElement("div", "projects");
+    prj.populateProjects(projects);
     let addButton = getAddButton();
     main.appendChild(projects);
     main.appendChild(addButton);
+}
 
+function getMain() {
+    let main = Dom.newElement("div", "main");
+    loadProjects(main);
     return main;
 }
 
@@ -68,11 +72,11 @@ function openNewProjectForm() {
     dateLabel.textContent = "Due Date:";
     let dueDateCalender = Dom.newElement("input", "date");
     dueDateCalender.type = "date";
+    dueDateCalender.value = null;
 
     let dueDate = Dom.newElement("div", "due-date");
     dueDate.appendChild(dateLabel);
     dueDate.appendChild(dueDateCalender);
-
 
     let desc = Dom.newElement("input", "description");
     desc.placeholder = "Description";
@@ -81,7 +85,7 @@ function openNewProjectForm() {
     let confirmButton = Dom.newElement("div", "confirm");
     let confirm = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>check</title><path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" fill="currentColor"/></svg>';
     confirmButton.innerHTML = `${confirm}`;
-    confirmButton.addEventListener("click", projects.addNewProject);
+    confirmButton.addEventListener("click", prj.addNewProject);
     let cancelButton = Dom.newElement("div", "cancel");
     let cancel = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>close</title><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" fill="currentColor"/></svg>';
     cancelButton.innerHTML = `${cancel}`;
@@ -98,18 +102,24 @@ function openNewProjectForm() {
 
     setTimeout(() => form.classList.remove("closed"), 50);
     main.addEventListener("click", closeForm);
-    form.addEventListener("click", (e) => {e.stopPropagation()})
+    form.addEventListener("click", (e) => {e.stopPropagation()});
+    projectName.focus();
 }
 
-
 function closeForm() {
+    let form = document.querySelector(".project-form");
+    form.classList.add("closed");
+
     console.log("form closed");
     let main = document.querySelector(".main");
-    main.removeChild(document.querySelector(".project-form"));
-
-    let addButton = getAddButton();
-    main.appendChild(addButton);
-    main.removeEventListener("click", closeForm);
+    setTimeout(() => 
+    {        
+        main.removeChild(form);
+        let addButton = getAddButton();
+        main.appendChild(addButton);
+        main.removeEventListener("click", closeForm);
+    }
+    ,500);
 }
 
 function getProject(obj, projectName) {
@@ -136,4 +146,9 @@ function getProjectButtons() {
     return buttons;
 }
 
-export default {initializeBody, getProject};
+function addProject(project, container) {
+    if (!container) container = document.querySelector(".projects");
+    container.appendChild(project.dom);
+}
+
+export default {initializeBody, getProject, addProject, closeForm};

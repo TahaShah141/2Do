@@ -1,40 +1,67 @@
-import backend from "./backend";
 import layout from "./layout";
 
 const projects = [];
 
+
 class Project {
-    constructor(name) {
+    constructor(name, desc="", date="") {
         this.name = name;
+        this.desc = desc;
+        if (date !== "") this.dueDate = new Date(date);
         this.dom = layout.getProject(this, name);
     }
 }
 
-function testing() {
-    for (let i = 0; i < 7; i++) {
-        projects.push(new Project(`test ${i+1}`));
-    }
+let defaultProject;
 
-    populateProjects();
-    showProjects();
+function initProjects() {
+    defaultProject = new Project("(Default)");
+    projects.push(defaultProject);
+
+    unloadProjects();
 }
 
-function populateProjects() {
+function unloadProjects() {
+    for (let i = 0; i < 5; i++) projects.push(new Project(`test ${i+1}`));
+}
+
+function populateProjects(container) {
+    initProjects();
     projects.forEach(project => {
         project.dom.classList.add("invisible");
-        backend.addProject(project);
+        layout.addProject(project, container);
     });
+
+    showProjects();
 }
 
 function showProjects(index=-1) {
     if (index !== -1) projects[index++].dom.classList.remove("invisible");
     else index = 0;
-    if (index < projects.length) setTimeout(showProjects.bind(this, index), 2500/projects.length);
+    if (index < projects.length) setTimeout(showProjects.bind(this, index), Math.min((2500/projects.length), 300));
 }
 
 function addNewProject() {
-    const form = document.querySelector(".project-form");
-    console.log(form);
+    let form = document.querySelector(".project-form");
+    let title = form.querySelector(".name-input");
+    let date = form.querySelector(".date");
+    let desc = form.querySelector(".description");
+
+    if (title.value === "") {
+        title.style["outline"] = "2px solid red";
+        title.style["border"] = "none";
+        title.focus();
+        return;
+    }
+
+    let newProject = new Project(title.value, desc.value, date.value);
+    projects.push(newProject);
+
+    newProject.dom.classList.add("invisible");
+    layout.addProject(newProject);
+    setTimeout(() => newProject.dom.classList.remove("invisible"), 50);
+
+    layout.closeForm();
 }
 
-export default {projects, Project, testing, addNewProject};
+export default {populateProjects, addNewProject};

@@ -1,13 +1,16 @@
 import layout from "./layout";
+import Dom from "./domManipulate";
+import tasks from "./tasks";
 
 const projects = [];
 
 
 class Project {
-    constructor(name, desc="", date="") {
+    constructor(name, desc="This project has no Description", date="") {
         this.name = name;
         this.desc = desc;
         if (date !== "") this.dueDate = new Date(date);
+        else this.dueDate = "No Due Date";
         this.dom = layout.getProject(this, name);
     }
 }
@@ -15,8 +18,11 @@ class Project {
 let defaultProject;
 
 function initProjects() {
+    if (projects.length !== 0) return;
+
     defaultProject = new Project("(Default)");
     projects.push(defaultProject);
+    Dom.removeDOM(defaultProject.dom.firstChild.lastChild);
 
     unloadProjects();
 }
@@ -64,4 +70,17 @@ function addNewProject() {
     layout.closeForm();
 }
 
-export default {populateProjects, addNewProject};
+function removeProject(event, obj) {
+    event.stopPropagation();
+    projects.splice((projects.indexOf(obj)), 1);
+    Dom.removeDOM(obj.dom);
+}
+
+function openProject(obj) {
+    if (!obj) obj = projects[0];
+    console.log("Opened project");
+    Dom.clearMain();
+    tasks.openTasks(obj);
+}
+
+export default {populateProjects, addNewProject, removeProject, openProject};

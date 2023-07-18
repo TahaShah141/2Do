@@ -5,4 +5,21 @@ function newElement(tag, ...classes) {
     return element;
 }
 
-export default {newElement};
+function removeDOM(dom) {
+    dom.parentNode.removeChild(dom);
+}
+
+function clearMain() {
+    let main = document.querySelector(".main");
+    main.innerHTML = "";
+    main.classList.remove("blue-gradient");
+    main.classList.remove("sunset-gradient");
+}
+
+function newPara(paragraph, ...classes) {
+    let para = newElement("p", ...classes);
+    para.textContent = paragraph;
+    return para;
+}
+
+export default {newElement, newPara, removeDOM, clearMain};

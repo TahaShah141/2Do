@@ -1,6 +1,6 @@
 import Dom from "./domManipulate.js";
 import prj from "./projects.js";
-import tsks from "./tasks.js";
+import tsks from "./tasks.js"
 
 
 function initializeBody() {
@@ -34,28 +34,11 @@ function getHeader() {
     return header;
 }
 
-function loadProjects(main) {
-    if (!main) main = document.querySelector(".main");
-    main.classList.add("blue-gradient");
-    let projects = Dom.newElement("div", "projects");
-    prj.populateProjects(projects);
-    let addButton = getAddButton();
-    main.appendChild(projects);
-    main.appendChild(addButton);
-}
 
 function getMain() {
     let main = Dom.newElement("div", "main");
-    loadProjects(main);
+    prj.loadProjects(main);
     return main;
-}
-
-function getAddButton() {
-    let addButton = Dom.newElement("div", "add-button");
-    let plusSign = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>plus</title><path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" fill="currentColor"/></svg>';
-    addButton.innerHTML = `<p>Add Project</p>${plusSign}`;
-    addButton.addEventListener("click", (e) => {e.stopPropagation();openNewProjectForm();});
-    return addButton;
 }
 
 function openNewProjectForm() {
@@ -90,7 +73,7 @@ function openNewProjectForm() {
     let cancelButton = Dom.newElement("div", "cancel");
     let cancel = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>close</title><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" fill="currentColor"/></svg>';
     cancelButton.innerHTML = `${cancel}`;
-    cancelButton.addEventListener("click", closeForm);
+    cancelButton.addEventListener("click", closeProjectForm);
     buttons.appendChild(confirmButton);
     buttons.appendChild(cancelButton);
 
@@ -102,12 +85,12 @@ function openNewProjectForm() {
     main.appendChild(form);
 
     setTimeout(() => form.classList.remove("closed"), 50);
-    main.addEventListener("click", closeForm);
+    main.addEventListener("click", closeProjectForm);
     form.addEventListener("click", (e) => {e.stopPropagation()});
     projectName.focus();
 }
 
-function closeForm() {
+function closeProjectForm() {
     let form = document.querySelector(".project-form");
     form.classList.add("closed");
 
@@ -116,9 +99,9 @@ function closeForm() {
     setTimeout(() => 
     {        
         main.removeChild(form);
-        let addButton = getAddButton();
+        let addButton = prj.getAddButton();
         main.appendChild(addButton);
-        main.removeEventListener("click", closeForm);
+        main.removeEventListener("click", closeProjectForm);
     }
     ,500);
 }
@@ -153,9 +136,12 @@ function addProject(project, container) {
     container.appendChild(project.dom);
 }
 
-function getTasks(project) {
-    let tasks = Dom.newElement("div", "tasks");
+function addTask(task, container) {
+    if (!container) container = document.querySelector(".task-container");
+    container.appendChild(task.dom);
+}
 
+function getTaskHeader(project) {
     let projectHeader = Dom.newElement("div", "project-header");
     let backButton = getBackButton();
 
@@ -166,7 +152,9 @@ function getTasks(project) {
     projectDesc.appendChild(Dom.newPara(`${project.desc}`, "secondary-text"));
 
     let projectDue = Dom.newElement("div", "project-due", "center");
-    projectDue.appendChild(Dom.newPara(`${project.dueDate}`, "due"));
+    let date = project.dueDate;
+    if (typeof(project.dueDate) !== "string") date = project.dueDate.toDateString();
+    projectDue.appendChild(Dom.newPara(`${date}`, "due"));
 
     let addTask = getAddTaskButton();
 
@@ -176,15 +164,7 @@ function getTasks(project) {
     projectHeader.appendChild(projectDue);
     projectHeader.appendChild(addTask);
 
-    let taskContainer = Dom.newElement("div", "task-container");
-    for (let i = 0; i < 4; i++) {
-        taskContainer.appendChild(getTask(tsks.newTask(`Task ${i+1}`, "This is some dummy description for testing", Math.round(Math.random()*1000)%3)));
-    }
-
-    tasks.appendChild(projectHeader);
-    tasks.appendChild(taskContainer);
-
-    return tasks;
+    return projectHeader;
 }
 
 function getTask(taskObj) {
@@ -198,12 +178,16 @@ function getTask(taskObj) {
     task.appendChild(taskDesc);
 
     task.addEventListener("click", function() {this.classList.toggle("completed")});
+    let delButton = Dom.newElement("div", "delete-task-button");
+    delButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>close</title><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" fill="currentColor"/></svg>';
+    delButton.addEventListener("click", (e) => tsks.removeTask(e, taskObj));
+    task.appendChild(delButton);
     return task;
 }
 
 function getBackButton() {
     let backButton = Dom.newElement("div", "back-button");
-    backButton.addEventListener("click", () => {Dom.clearMain(); loadProjects()})
+    backButton.addEventListener("click", () => {Dom.clearMain(); prj.loadProjects()})
     let back = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>arrow-left</title><path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" fill="currentColor" /></svg>';
     backButton.innerHTML = `${back}`;
     return backButton;
@@ -220,10 +204,10 @@ function getAddTaskButton() {
 function openNewTaskForm() {
     if (document.querySelector(".task-form")) return;
 
-    let form = Dom.newElement("div", "task", "task-form");
+    let form = Dom.newElement("div", "task", "task-form", "invisible");
     let header = Dom.newElement("div", "form-header");
 
-    let subjectInput = Dom.newElement("input");
+    let subjectInput = Dom.newElement("input", "task-subject");
     subjectInput.placeholder = "Task Name";
     let priorities = getFormPriorities();
 
@@ -234,12 +218,12 @@ function openNewTaskForm() {
     console.log("here");
 
     let footer = Dom.newElement("div", "form-footer");
-    let descInput = Dom.newElement("input");
+    let descInput = Dom.newElement("input", "task-description");
     descInput.placeholder = "Task Description"
     let formButtons = Dom.newElement("div", "task-form-buttons");
     let confirm = Dom.newElement("button", "confirm");
     confirm.textContent = "confirm";
-    confirm.addEventListener("click", addNewTask)
+    confirm.addEventListener("click", tsks.addNewTask.bind(this, form));
     let cancel = Dom.newElement("button", "cancel");
     cancel.textContent = "cancel";
     cancel.addEventListener("click", closeTaskForm)
@@ -254,6 +238,7 @@ function openNewTaskForm() {
     form.appendChild(footer);
     let tasks = document.querySelector(".task-container");
     tasks.appendChild(form);
+    setTimeout(function() {form.classList.remove("invisible")}, 200);
 }
 
 function getFormPriorities() {
@@ -275,12 +260,9 @@ function selectMe() {
     this.classList.add("selected");
 }
 
-function addNewTask() {
-
-}
-
 function closeTaskForm() {
     Dom.removeDOM(document.querySelector(".task-form"));
 }
 
-export default {initializeBody, getProject, addProject, loadProjects, closeForm, getTasks};
+
+export default {initializeBody, getProject, addProject, openNewProjectForm, closeProjectForm, getTask, addTask, getTaskHeader};

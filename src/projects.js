@@ -1,43 +1,49 @@
 import layout from "./layout";
 import Dom from "./domManipulate";
-import tasks from "./tasks";
+import tsks, {Task} from "./tasks";
 
 const projects = [];
 
-
 class Project {
-    constructor(name, desc="This project has no Description", date="") {
+    constructor(name, desc="This project has no Description", date="", tasks=[]) {
         this.name = name;
         if (desc !== "") this.desc = desc;
         else this.desc = "This project has no Description";
-        if (date !== "") this.dueDate = new Date(date);
+        if (date !== "" && !(!date)) this.dueDate = new Date(date);
         else this.dueDate = "No Due Date";
+        
         this.dom = layout.getProject(this, name);
         this.tasks = [];
-        for (let i = 0; i < 5; i++) {
-            this.tasks.push(tasks.newTask(`Test ${i+1}`, "This is some dummy description for testing", Math.round(Math.random()*1000)%3));
-        }
+        tasks.forEach(task => this.tasks.push(new Task(task.subject, task.desc, task.priority, task.completed)));
     }
 }
 
-let defaultProject;
+function getDefaultProject() {
+    let project = new Project("(Default)", "This is the default project for your 2Do's");
+    return project;
+}
 
 function initProjects() {
-    if (projects.length !== 0) return;
-
-    defaultProject = new Project("(Default)");
-    projects.push(defaultProject);
-    Dom.removeDOM(defaultProject.dom.firstChild.lastChild);
-
     unloadProjects();
 }
 
 function unloadProjects() {
-    for (let i = 0; i < 5; i++) projects.push(new Project(`test ${i+1}`));
+    try {
+        let storedProjects = JSON.parse(localStorage["projects"]);
+        storedProjects.forEach(project => projects.push(new Project(project.name, project.desc, project.dueDate, project.tasks)));
+    }
+    catch (e) {
+        projects.push(getDefaultProject());
+    }
+    removeDefaultDeleteButton();
+}
+
+function removeDefaultDeleteButton() {
+    Dom.removeDOM(projects[0].dom.querySelector(".project-buttons"));
 }
 
 function populateProjects(container) {
-    initProjects();
+    if (projects.length === 0) initProjects();
     projects.forEach(project => {
         project.dom.classList.add("invisible");
         layout.addProject(project, container);
@@ -74,19 +80,21 @@ function addNewProject() {
     setTimeout(() => newProject.dom.classList.remove("invisible"), 50);
 
     layout.closeProjectForm();
+    save();
 }
 
 function removeProject(event, obj) {
     event.stopPropagation();
     projects.splice((projects.indexOf(obj)), 1);
     Dom.removeDOM(obj.dom);
+    save();
 }
 
 function openProject(obj) {
     if (!obj) obj = projects[0];
     console.log("Opened project");
     Dom.clearMain();
-    tasks.loadTasks(obj);
+    tsks.loadTasks(obj);
 }
 
 
@@ -108,5 +116,10 @@ function getAddButton() {
     return addButton;
 }
 
+function save() {
+    localStorage.setItem("projects", JSON.stringify(projects));
+}
 
+export {save};
+export {projects};
 export default {loadProjects, addNewProject, removeProject, openProject, getAddButton};

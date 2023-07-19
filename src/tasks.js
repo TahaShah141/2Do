@@ -1,12 +1,15 @@
 import layout from "./layout";
 import Dom from "./domManipulate";
+import {save} from "./projects";
 
 class Task {
-    constructor(subject, desc, priority) {
+    constructor(subject, desc, priority, completed=false) {
         this.subject = subject;
         this.desc = desc;
         this.priority = priority;
         this.dom = layout.getTask(this);
+        this.completed = completed;
+        if (this.completed) this.dom.classList.add("completed"); 
     }
 }
 
@@ -53,7 +56,7 @@ function addNewTask(form) {
     let subject = form.querySelector(".task-subject");
     let description = form.querySelector(".task-description");
 
-    if (subject.value === "") {subject.style["outline"] = "1px solid red"; return;}
+    if (subject.value === "") {subject.style["outline"] = "1px solid red"; subject.focus(); return;}
     let desc = description.value;
     
     if (desc === "") desc = "No description needed";
@@ -62,6 +65,7 @@ function addNewTask(form) {
     project.tasks.push(newTask);
     Dom.removeDOM(form);
     layout.addTask(newTask);
+    save();
 }
 
 function showTasks(tasks, index=-1) {
@@ -75,11 +79,15 @@ function newTask(subject, desc, priority) {
 }
 
 
+
 function removeTask(event, obj) {
     event.stopPropagation();
     let tasks = currentProject.tasks;
     tasks.splice((tasks.indexOf(obj)), 1);
     Dom.removeDOM(obj.dom);
+    save();
 }
 
+
+export {Task};
 export default {loadTasks, newTask, addNewTask, removeTask};

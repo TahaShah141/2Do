@@ -1,7 +1,7 @@
 import Dom from "./domManipulate.js";
 import prj from "./projects.js";
 import tsks from "./tasks.js"
-
+import {save} from "./projects.js";
 
 function initializeBody() {
     let header = getHeader();
@@ -177,7 +177,7 @@ function getTask(taskObj) {
     task.appendChild(taskName);
     task.appendChild(taskDesc);
 
-    task.addEventListener("click", function() {this.classList.toggle("completed")});
+    task.addEventListener("click", function() {this.classList.toggle("completed"); taskObj.completed = !taskObj.completed; save();});
     let delButton = Dom.newElement("div", "delete-task-button");
     delButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>close</title><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" fill="currentColor"/></svg>';
     delButton.addEventListener("click", (e) => tsks.removeTask(e, taskObj));
@@ -210,7 +210,6 @@ function openNewTaskForm() {
     let subjectInput = Dom.newElement("input", "task-subject");
     subjectInput.placeholder = "Task Name";
     let priorities = getFormPriorities();
-
     
     header.appendChild(subjectInput);
     header.appendChild(priorities);
@@ -239,6 +238,7 @@ function openNewTaskForm() {
     let tasks = document.querySelector(".task-container");
     tasks.appendChild(form);
     setTimeout(function() {form.classList.remove("invisible")}, 200);
+    subjectInput.focus();
 }
 
 function getFormPriorities() {
